@@ -134,4 +134,44 @@ public_users.get('/review/:isbn',function (req, res) {
   res.send(books[isbn].reviews);
 });
 
+// Add/Modify a book review
+public_users.put('/review/:isbn', (req, res) => {
+  const isbn = req.params.isbn;
+  let review = req.query.review || req.body.review;
+  if (req.session.authorization) {
+      let username = req.session.authorization['username'];
+      let book = books[isbn];
+      if (book) {
+          book.reviews[username] = review;
+          return res.status(200).json({message: `The review for the book with ISBN ${isbn} has been added/updated.`});
+      } else {
+          return res.status(404).json({message: "Book not found"});
+      }
+  } else {
+      return res.status(403).json({message: "User not logged in"});
+  }
+});
+
+// Delete a book review
+public_users.delete('/review/:isbn', (req, res) => {
+  const isbn = req.params.isbn;
+  if (req.session.authorization) {
+      let username = req.session.authorization['username'];
+      let book = books[isbn];
+      if (book) {
+          if (book.reviews[username]) {
+              delete book.reviews[username];
+              return res.status(200).json({message: `Reviews for the ISBN ${isbn} posted by the user ${username} deleted.`});
+          } else {
+              return res.status(404).json({message: "No review found for this user"});
+          }
+      } else {
+          return res.status(404).json({message: "Book not found"});
+      }
+  } else {
+      return res.status(403).json({message: "User not logged in"});
+  }
+});
+
+
 module.exports.general = public_users;

@@ -50,43 +50,7 @@ regd_users.post("/login", (req,res) => {
   }
 });
 
-// Add a book review
-regd_users.put("/auth/review/:isbn", (req, res) => {
-  const isbn = req.params.isbn;
-  let filtered_book = books[isbn];
-  if (filtered_book) {
-      let review = req.query.review || req.body.review;
-      let reviewer = req.session.authorization['username'];
-      if(review) {
-          filtered_book['reviews'][reviewer] = review;
-          books[isbn] = filtered_book;
-      }
-      res.json({message: `The review for the book with ISBN ${isbn} has been added/updated.`});
-  }
-  else{
-      res.send("Unable to find book!");
-  }
-});
-
-regd_users.delete("/auth/review/:isbn", (req, res) => {
-  const isbn = req.params.isbn;
-  let reviewer = req.session.authorization['username'];
-  let filtered_book = books[isbn];
-  if (filtered_book) {
-      let review = filtered_book['reviews'][reviewer];
-      if(review) {
-          delete filtered_book['reviews'][reviewer];
-          res.json({message: `Reviews for the ISBN ${isbn} posted by the user ${reviewer} deleted.`});
-      }
-      else{
-          res.send("Can't delete, as this review is not posted by you");
-      }
-  }
-  else{
-      res.send("Unable to find book!");
-  }
-});
-
 module.exports.authenticated = regd_users;
+
 module.exports.isValid = isValid;
 module.exports.users = users;
